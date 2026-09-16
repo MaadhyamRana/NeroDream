@@ -3,11 +3,11 @@
 # Exit immediately as soon as any one of the below fail
 set -e
 
-# usage: bash tests/test_grad_params.sh $MODEL (see README.md)
+# usage: bash tests/test_grad_params.sh $MODEL $LAYER $CHANNEL $IMAGE (see README.md)
 MODEL="${1}"
-IMAGE="images/test2.jpg"
-LAYER="features.14"
-CHANNEL="130"
+LAYER="${2}"
+CHANNEL="${3}"
+IMAGE="${4}"
 
 if [ "$MODEL" != "mobilenet_v2" ] && 
    [ "$MODEL" != "mobilenet_v3_large" ] &&

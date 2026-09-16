@@ -185,7 +185,7 @@ def make_torch_grad_fn(
         Squaring means both +ve and -ve activations count as +ve activity;
         gradient ascent pushes magnitude up regardless of direction.
         """
-        target = act[:, channel] if channel is not None else act
+        target = act[:, channel] if (channel != -1) else act
         loss = target.pow(2).mean()
         loss.backward()
         return tensor.grad.squeeze(0).permute(1, 2, 0).numpy() # restore axes again to HWC

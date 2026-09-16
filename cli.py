@@ -18,8 +18,8 @@ def main() -> None:
     parser.add_argument("--image", help="Path to input photo.")
     parser.add_argument("--output", default="dream.png", help="Where to save the result.")
     parser.add_argument("--model", default="mobilenet_v2", choices=list(AVAILABLE_MODELS))
-    parser.add_argument("--layer", default=None, help="Layer to maximize. Defaults to a good known layer per model.")
-    parser.add_argument("--channel", type=int, default=None, help="Maximize one channel instead of the whole layer.")
+    parser.add_argument("--layer", default="", help="Layer to maximize. Defaults to a good known layer per model.")
+    parser.add_argument("--channel", type=int, default=-1, help="Maximize one channel instead of the whole layer.")
     parser.add_argument("--octaves", type=int, default=4)
     parser.add_argument("--octave-scale", type=float, default=1.4)
     parser.add_argument("--iterations", type=int, default=15, help="Gradient ascent steps per octave.")
@@ -40,7 +40,7 @@ def main() -> None:
         parser.error("--image is required unless --list-layers is given")
 
     # fetching the layer/ default from the model
-    layer = args.layer or AVAILABLE_MODELS[args.model].default_layer
+    layer = AVAILABLE_MODELS[args.model].default_layer if args.layer == "" else args.layer
     min_px = AVAILABLE_MODELS[args.model].min_recommended_input_px
 
     # prepare the gradient ascent function from the selected layer
