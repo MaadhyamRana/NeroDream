@@ -23,30 +23,30 @@ exit 1
 fi
 
 if [ "$MODEL" == "mobilenet_v2" ]; then
-python cli.py --model "$MODEL" --layer "features.3"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v2.3.jpg
-python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v2.7.jpg
-python cli.py --model "$MODEL" --layer "features.14" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v2.14.jpg
-python cli.py --model "$MODEL" --layer "features.18" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v2.18.jpg
+python cli.py --model "$MODEL" --layer "features.3"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v2.3.jpg
+python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v2.7.jpg
+python cli.py --model "$MODEL" --layer "features.14" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v2.14.jpg
+python cli.py --model "$MODEL" --layer "features.18" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v2.18.jpg
 
 elif [ "$MODEL" == "mobilenet_v3_large" ]; then
-python cli.py --model "$MODEL" --layer "features.3"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v3_large.3.jpg
-python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v3_large.7.jpg
-python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v3_large.12.jpg
-python cli.py --model "$MODEL" --layer "features.15" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.mobilenet_v3_large.15.jpg
+python cli.py --model "$MODEL" --layer "features.3"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v3_large.3.jpg
+python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v3_large.7.jpg
+python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v3_large.12.jpg
+python cli.py --model "$MODEL" --layer "features.15" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.mobilenet_v3_large.15.jpg
 
 elif [ "$MODEL" == "vgg16" ]; then
-python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg16.7.jpg
-python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg16.12.jpg
-python cli.py --model "$MODEL" --layer "features.17" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg16.17.jpg
-python cli.py --model "$MODEL" --layer "features.24" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg16.24.jpg
+python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg16.7.jpg
+python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg16.12.jpg
+python cli.py --model "$MODEL" --layer "features.17" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg16.17.jpg
+python cli.py --model "$MODEL" --layer "features.24" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg16.24.jpg
 
 else
-python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg19.7.jpg
-python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg19.12.jpg
-python cli.py --model "$MODEL" --layer "features.21" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg19.21.jpg
-python cli.py --model "$MODEL" --layer "features.30" --image "$SOURCE" --guide "$GUIDE" --output dream.guided.vgg19.30.jpg
+python cli.py --model "$MODEL" --layer "features.7"  --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg19.7.jpg
+python cli.py --model "$MODEL" --layer "features.12" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg19.12.jpg
+python cli.py --model "$MODEL" --layer "features.21" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg19.21.jpg
+python cli.py --model "$MODEL" --layer "features.30" --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.vgg19.30.jpg
 fi
 
 # Sanity check; --channel should be ignored (with no error) when --guide is given,
 # since make_guided_grad_fn's signature has no channel argument.
-python cli.py --model "$MODEL" --channel 0 --image "$SOURCE" --guide "$GUIDE" --output dream.guided.ignores_channel.jpg
+python cli.py --model "$MODEL" --channel 0 --image "$SOURCE_MODEL" --guide "$GUIDE_MODEL" --output dream.guided.ignores_channel.jpg
