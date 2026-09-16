@@ -46,9 +46,9 @@ just pass `--model <name>`. To add more later, these are the libraries to
 pull from:
 
 - **torchvision** (what this project uses): https://pytorch.org/vision/stable/models.html -- the full list of pretrained classifiers, all auto-downloading via the same `weights=...Weights.DEFAULT` pattern used in `models.py`.
-- **Keras Applications** (if you ever port to TensorFlow/TF.js for the browser phase): https://keras.io/api/applications/ -- same set of architectures (InceptionV3, VGG, MobileNet, EfficientNet, ResNet, Xception), auto-downloads to `~/.keras/`.
-- **timm** (PyTorch Image Models, by Ross Wightman): https://github.com/huggingface/pytorch-image-models -- 900+ architectures if you want more variety than the eight below.
-- **ONNX Model Zoo**: https://github.com/onnx/models -- pretrained `.onnx` files directly, relevant later if you target ONNX Runtime Web for a browser build.
+- **Keras Applications** (if ever porting to TensorFlow/TF.js): https://keras.io/api/applications/ -- same set of architectures (InceptionV3, VGG, MobileNet, EfficientNet, ResNet, Xception), auto-downloads to `~/.keras/`.
+- **timm** (PyTorch Image Models, by Ross Wightman): https://github.com/huggingface/pytorch-image-models -- 900+ architectures.
+- **ONNX Model Zoo**: https://github.com/onnx/models -- pretrained `.onnx` files directly for ONNX Runtime Web.
 
 Currently registered (`--model` value, approx. download size, character):
 
