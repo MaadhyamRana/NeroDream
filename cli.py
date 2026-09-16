@@ -56,7 +56,10 @@ def main() -> None:
             f"{min_px}px for {args.model} -- consider fewer octaves or a smaller --octave-scale."
         )
 
-    print(f"Dreaming with {args.model} / layer '{layer}' across {len(sizes)} octaves: {sizes}")
+    print(f"\nDreaming {args.image} with params:")
+    print(f"model: {args.model}, layer: {layer}, channel: {args.channel},")
+    print(f"octaves: {args.octaves} (scale {args.octave_scale}) -> sizes: {sizes},")
+    print(f"iterations: {args.iterations}, step-size: {args.step_size}, jitter: {args.jitter}, max-size: {args.max_size}")
     result = run_octaves(original, sizes, args.iterations, grad_fn, args.step_size, args.jitter)
 
     save_image(result, args.output)
