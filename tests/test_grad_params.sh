@@ -5,9 +5,9 @@ set -e
 
 # usage: bash tests/test_grad_params.sh $MODEL (see README.md)
 MODEL="${1}"
-IMAGE="images/dream.params.octaves.6.jpg"
-LAYER="features.24"
-CHANNEL="100"
+IMAGE="images/test2.jpg"
+LAYER="features.14"
+CHANNEL="130"
 
 if [ "$MODEL" != "mobilenet_v2" ] && 
    [ "$MODEL" != "mobilenet_v3_large" ] &&
