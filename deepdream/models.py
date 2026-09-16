@@ -191,3 +191,59 @@ def make_torch_grad_fn(
         return tensor.grad.squeeze(0).permute(1, 2, 0).numpy() # restore axes again to HWC
 
     return compute_grad_fn
+
+
+def make_guided_grad_fn(
+    model: torch.nn.Module, layer_name: str, guide_image_hwc: np.ndarray
+) -> Callable[[np.ndarray], np.ndarray]:
+    """Same compute_grad_fn(image_hwc) -> gradient_hwc interface as
+    make_torch_grad_fn, but instead of maximizing the layer's activation in
+    general, pulls the source's activation at that layer *toward* the
+    guide image's -- so the dream hallucinates shapes pulled from the guide
+    instead of generic ImageNet classes.
+
+    The guide's activation is averaged over space into one target vector
+    per channel, so it stays comparable to the source's activation no
+    matter how the source's resolution (and so its activation's spatial
+    size) changes across octaves.
+    """
+    named_modules = dict(model.named_modules())
+    if layer_name not in named_modules:
+        raise ValueError(f"No layer '{layer_name}' in this model. Try list_layers(model).")
+    target_module = named_modules[layer_name]
+
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
+    activation = {}
+    def hook(_module, _input, output):
+        activation["value"] = output
+    target_module.register_forward_hook(hook)
+
+    # One-off forward pass on the guide image to get its (fixed) target activation.
+    guide_tensor = torch.from_numpy(guide_image_hwc).permute(2, 0, 1).unsqueeze(0).float()
+    with torch.no_grad():
+        model((guide_tensor - mean) / std)
+    guide_target = activation["value"].mean(dim=(2, 3), keepdim=True)
+
+    def compute_grad_fn(image_hwc: np.ndarray) -> np.ndarray:
+        tensor = torch.from_numpy(image_hwc).permute(2, 0, 1).unsqueeze(0).float()
+        tensor.requires_grad_(True)
+
+        normalized = (tensor - mean) / std
+        model(normalized)
+        act = activation["value"]
+
+        """
+        core.py's gradient_ascent_step always *adds* step_size * grad, i.e.
+        it only knows how to ascend. To pull the source's activation toward
+        the guide's (minimize distance) through that same ascent-only
+        interface, we ascend on the negated distance instead -- negating
+        the loss before backward() flips the returned gradient's sign, so
+        adding it is equivalent to descending the real (unnegated) distance.
+        """
+        loss = -((act - guide_target) ** 2).mean()
+        loss.backward()
+        return tensor.grad.squeeze(0).permute(1, 2, 0).numpy()
+
+    return compute_grad_fn

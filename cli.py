@@ -10,16 +10,17 @@ import argparse
 
 from deepdream.core import run_octaves
 from deepdream.image_utils import build_octave_sizes, load_image, save_image
-from deepdream.models import AVAILABLE_MODELS, get_model, list_layers, make_torch_grad_fn
+from deepdream.models import AVAILABLE_MODELS, get_model, list_layers, make_guided_grad_fn, make_torch_grad_fn
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Simple DeepDream: layer/channel activation maximization.")
     parser.add_argument("--image", help="Path to input photo.")
-    parser.add_argument("--output", default="dream.png", help="Where to save the result.")
+    parser.add_argument("--output", default="dream.jpg", help="Where to save the result.")
     parser.add_argument("--model", default="mobilenet_v2", choices=list(AVAILABLE_MODELS))
     parser.add_argument("--layer", default="", help="Layer to maximize. Defaults to a good known layer per model.")
     parser.add_argument("--channel", type=int, default=-1, help="Maximize one channel instead of the whole layer.")
+    parser.add_argument("--guide", default=None, help="Path to a guide image. If given, pulls the source's activation toward the guide's instead of maximizing it (ignores --channel).")
     parser.add_argument("--octaves", type=int, default=4)
     parser.add_argument("--octave-scale", type=float, default=1.4)
     parser.add_argument("--iterations", type=int, default=15, help="Gradient ascent steps per octave.")
@@ -44,7 +45,11 @@ def main() -> None:
     min_px = AVAILABLE_MODELS[args.model].min_recommended_input_px
 
     # prepare the gradient ascent function from the selected layer
-    grad_fn = make_torch_grad_fn(model, layer, args.channel)
+    if args.guide:
+        guide_image = load_image(args.guide, max_size=args.max_size)
+        grad_fn = make_guided_grad_fn(model, layer, guide_image)
+    else:
+        grad_fn = make_torch_grad_fn(model, layer, args.channel)
 
     # runitt
     original = load_image(args.image, max_size=args.max_size)
@@ -57,7 +62,7 @@ def main() -> None:
         )
 
     print(f"\nDreaming {args.image} with params:")
-    print(f"model: {args.model}, layer: {layer}, channel: {args.channel},")
+    print(f"model: {args.model}, layer: {layer}, channel: {args.channel}, guide: {args.guide},")
     print(f"octaves: {args.octaves} (scale {args.octave_scale}) -> sizes: {sizes},")
     print(f"iterations: {args.iterations}, step-size: {args.step_size}, jitter: {args.jitter}, max-size: {args.max_size}")
     result = run_octaves(original, sizes, args.iterations, grad_fn, args.step_size, args.jitter)
