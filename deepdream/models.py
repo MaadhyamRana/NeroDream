@@ -88,7 +88,7 @@ AVAILABLE_MODELS = {
         "features.17",
         528,
         32,
-        "Clean sequential conv stack; standard neural-style-transfer's backbone, for later",
+        "Clean sequential conv stack; standard neural-style-transfer's backbone",
     ),
     "vgg19": ModelEntry(
         lambda: tvm.vgg19(weights=VGG19_Weights.DEFAULT),
