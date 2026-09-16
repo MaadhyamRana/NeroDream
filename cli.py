@@ -1,4 +1,4 @@
-"""Level 1 DeepDream CLI: python cli.py --image photo.jpg
+"""Simple DeepDream CLI: python cli.py --image photo.jpg
 
 Needs torch + torchvision installed (see requirements.txt) and, on first use
 of a given --model, an internet connection to download its pretrained

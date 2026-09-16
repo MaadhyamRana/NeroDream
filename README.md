@@ -1,10 +1,4 @@
-# DeepDream prototype (Level 1: layer/channel activation maximization)
-
-Laptop-only, Linux-developed, no UI yet -- CLI in, PNG out. Built so the
-octave/gradient-ascent loop (`deepdream/core.py`) has zero dependency on
-torch or any specific model, which is what makes it unit-testable and what
-will make Level 2 (guided dreaming, two images) a small addition rather than
-a rewrite.
+# NeroDream: DeepDream remix 
 
 ## Setup
 
@@ -13,44 +7,41 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-
 The first time you run the CLI with a given `--model`, torchvision downloads
 its pretrained ImageNet weights automatically (needs internet, one-time per
-model) and caches them to `~/.cache/torch/hub/checkpoints/`. No manual
-download step is needed.
+model) and caches them to `~/.cache/torch/hub/checkpoints/`.
+
 
 ## Run the tests
 
 ```bash
 pytest tests/ -v
 ```
-
 These 14 tests only touch `image_utils.py` and `core.py`, which don't import
 torch at all -- they run in well under a second and don't need any model
-downloaded. `models.py` (the torch-dependent part) isn't unit tested here on
-purpose; it's a thin wrapper around torchvision, and the real test of it is
-just running the CLI and looking at the output image.
+downloaded. `models.py` is 'tested' by looking at the output image.
+
 
 ## Run the dreamer
 
 ```bash
 python cli.py --image your_photo.jpg --model mobilenet_v2
 ```
-
 See every hookable layer name for a model (useful for finding your own
 favorite layer to maximize):
+
 
 ```bash
 python cli.py --model vgg16 --list-layers
 ```
-
 Then try, e.g.:
 
 ```bash
 python cli.py --image your_photo.jpg --model vgg16 --layer features.17 --octaves 5 --iterations 20
 ```
 
-## Where to get more models (for your swap-and-test directory)
+
+## Where to get more models
 
 Every model below is already wired up by name in `deepdream/models.py` --
 just pass `--model <name>`. To add more later, these are the libraries to
@@ -89,12 +80,12 @@ There's no hard requirement. Guidance:
   model's recommended minimum -- fix it by lowering `--octaves` or
   `--octave-scale`.
 
-## Roadmap hook for Level 2
+## Planned changes
 
-`core.run_octaves` takes a `compute_grad_fn: (image) -> gradient` and knows
-nothing about how that gradient is produced. `models.make_torch_grad_fn` is
-today's implementation ("maximize this layer's activation"). Level 2 (guided
-dreaming with a second reference image) is a new function with the same
+Guided Dreaming with a second reference image - new function with the same
 signature -- e.g. `make_guided_grad_fn(model, layer, guide_image)` that
 minimizes distance to the guide's activation instead -- dropped in as a
 straight swap in `cli.py`. No change needed to `core.py` or `image_utils.py`.
+
+UI addition and simplification (native app / web app?)
+
