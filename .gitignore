@@ -1,4 +1,4 @@
-# Python stuff
+# Python
 .venv/
 __pycache__/
 *.py[cod]
@@ -18,3 +18,17 @@ dist/
 .idea/
 .DS_Store
 CLAUDE.md
+
+# Ignore common image file types only at the repository ROOT
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.bmp
+/*.svg
+/*.webp
+/*.avif
+/*.ico
+/*.tif
+/*.tiff
+
