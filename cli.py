@@ -14,7 +14,7 @@ from deepdream.models import AVAILABLE_MODELS, get_model, list_layers, make_torc
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Level 1 DeepDream: layer/channel activation maximization.")
+    parser = argparse.ArgumentParser(description="Simple DeepDream: layer/channel activation maximization.")
     parser.add_argument("--image", help="Path to input photo.")
     parser.add_argument("--output", default="dream.png", help="Where to save the result.")
     parser.add_argument("--model", default="mobilenet_v2", choices=list(AVAILABLE_MODELS))
