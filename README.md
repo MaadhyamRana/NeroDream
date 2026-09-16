@@ -24,18 +24,16 @@ downloaded. `models.py` is 'tested' by looking at the output image.
 
 ## Run the dreamer
 
+Basic run (default model is mobilenet_v2)
 ```bash
-python cli.py --image your_photo.jpg --model mobilenet_v2
+python cli.py --image your_photo.jpg
 ```
 See every hookable layer name for a model (useful for finding your own
 favorite layer to maximize):
-
-
 ```bash
 python cli.py --model vgg16 --list-layers
 ```
-Then try, e.g.:
-
+More params; Custom run:
 ```bash
 python cli.py --image your_photo.jpg --model vgg16 --layer features.17 --octaves 5 --iterations 20
 ```
