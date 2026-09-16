@@ -9,14 +9,6 @@ LAYER="${2}"
 CHANNEL="${3}"
 IMAGE="${4}"
 
-if [ "$MODEL" != "mobilenet_v2" ] && 
-   [ "$MODEL" != "mobilenet_v3_large" ] &&
-   [ "$MODEL" != "vgg16" ] &&
-   [ "$MODEL" != "vgg19" ]; then
-echo "test_grad_params.sh only knows mobilenet_v2, mobilenet_v3_large, vgg16, vgg19 -- got '$MODEL'" >&2
-exit 1
-fi
-
 # Sweeps the gradient-ascent params that aren't model related lik layer/channel:
 # --octaves, --octave-scale, --iterations, --step-size, --jitter. Each block below
 # varies ONE param around its cli.py default (model/layer/image held fixed)
