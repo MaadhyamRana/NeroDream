@@ -45,7 +45,7 @@ from PyQt6.QtWidgets import (
 
 from deepdream.core import run_octaves
 from deepdream.image_utils import ArrayHWC, build_octave_sizes, load_image, save_image
-from deepdream.models import AVAILABLE_MODELS, get_model, make_guided_grad_fn, make_torch_grad_fn
+from deepdream.models import AVAILABLE_MODELS, get_model, list_layers, make_guided_grad_fn, make_torch_grad_fn
 
 # Plain-language explanations shown via the "(i)" button next to each control.
 # Keep these free of ML jargon -- the audience is a non-technical friend, not
@@ -162,12 +162,29 @@ class DreamWorker(QThread):
             sys.stdout = old_stdout
 
 
+class LayerListWorker(QThread):
+    """Loads a model off the GUI thread just to enumerate its layer names
+    (some models take a few seconds to construct/load weights)."""
+
+    loaded = pyqtSignal(str, list)
+
+    def __init__(self, model_name: str):
+        super().__init__()
+        self.model_name = model_name
+
+    def run(self) -> None:
+        model = get_model(self.model_name)
+        self.loaded.emit(self.model_name, list_layers(model))
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NeroDream")
         self.worker: Optional[DreamWorker] = None
         self.result_image: Optional[ArrayHWC] = None
+        self.layer_worker: Optional[LayerListWorker] = None
+        self._layer_cache: dict[str, list[str]] = {}
 
         self.image_path = QLineEdit()
         self.guide_path = QLineEdit()
@@ -176,7 +193,8 @@ class MainWindow(QMainWindow):
         self.model_box.addItems(list(AVAILABLE_MODELS))
         self.model_box.currentTextChanged.connect(self._update_layer_placeholder)
 
-        self.layer_edit = QLineEdit()
+        self.layer_box = QComboBox()
+        self.layer_box.setEditable(True)
         self.channel_spin = QSpinBox()
         self.channel_spin.setRange(-1, 4096)
         self.channel_spin.setValue(-1)
@@ -231,7 +249,7 @@ class MainWindow(QMainWindow):
         form.addRow("Source image", self._with_info(self._path_row(self.image_path, self._browse_image), "Source image"))
         form.addRow("Guide image (optional)", self._with_info(self._path_row(self.guide_path, self._browse_guide), "Guide image"))
         form.addRow("Model", self._with_info(self.model_box, "Model"))
-        form.addRow("Layer (blank = model default)", self._with_info(self.layer_edit, "Layer"))
+        form.addRow("Layer (blank = model default)", self._with_info(self.layer_box, "Layer"))
         form.addRow("Channel (-1 = whole layer)", self._with_info(self.channel_spin, "Channel"))
         form.addRow("Octaves", self._with_info(self.octaves_spin, "Octaves"))
         form.addRow("Octave scale", self._with_info(self.octave_scale_spin, "Octave scale"))
@@ -327,7 +345,33 @@ class MainWindow(QMainWindow):
         return container
 
     def _update_layer_placeholder(self, model_name: str) -> None:
-        self.layer_edit.setPlaceholderText(AVAILABLE_MODELS[model_name].default_layer)
+        self.layer_box.clearEditText()
+        self.layer_box.lineEdit().setPlaceholderText(AVAILABLE_MODELS[model_name].default_layer)
+
+        cached = self._layer_cache.get(model_name)
+        if cached is not None:
+            self._populate_layer_box(cached)
+            return
+
+        self.layer_box.clear()
+        if self.layer_worker is not None and self.layer_worker.isRunning():
+            self.layer_worker.loaded.disconnect(self._on_layers_loaded)
+        self.layer_worker = LayerListWorker(model_name)
+        self.layer_worker.loaded.connect(self._on_layers_loaded)
+        self.layer_worker.start()
+
+    def _on_layers_loaded(self, model_name: str, layers: list) -> None:
+        self._layer_cache[model_name] = layers
+        if self.model_box.currentText() == model_name:
+            self._populate_layer_box(layers)
+
+    def _populate_layer_box(self, layers: list) -> None:
+        current_text = self.layer_box.currentText()
+        self.layer_box.blockSignals(True)
+        self.layer_box.clear()
+        self.layer_box.addItems(layers)
+        self.layer_box.setCurrentText(current_text)
+        self.layer_box.blockSignals(False)
 
     def _browse_image(self) -> None:
         path, _ = QFileDialog.getOpenFileName(self, "Choose source image", "", "Images (*.png *.jpg *.jpeg)")
@@ -350,7 +394,7 @@ class MainWindow(QMainWindow):
             "image": self.image_path.text(),
             "guide": self.guide_path.text() or None,
             "model": self.model_box.currentText(),
-            "layer": self.layer_edit.text().strip(),
+            "layer": self.layer_box.currentText().strip(),
             "channel": self.channel_spin.value(),
             "octaves": self.octaves_spin.value(),
             "octave_scale": self.octave_scale_spin.value(),

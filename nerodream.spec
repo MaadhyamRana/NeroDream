@@ -6,14 +6,11 @@ so the packaged app runs fully offline -- no torch hub download on first
 launch. Run `python scripts/prefetch_models.py` first if that cache is
 missing any model.
 
-Build (run on the OS you want the output for -- Linux in, Linux binary out;
-Windows in, .exe out):
+Build:
+pyinstaller nerodream.spec
 
-    pyinstaller nerodream.spec
-
-Output lands in dist/NeroDream/ (onedir build: a folder containing
-NeroDream[.exe] plus its dependencies and bundled weights -- hand off the
-whole folder, or zip it).
+Output lands in dist/NeroDream/, a onedir build with a folder containing
+NeroDream.exe plus its dependencies and bundled weights.
 """
 import os
 from pathlib import Path
