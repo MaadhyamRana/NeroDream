@@ -51,29 +51,40 @@ from deepdream.models import AVAILABLE_MODELS, get_model, make_guided_grad_fn, m
 # Keep these free of ML jargon -- the audience is a non-technical friend, not
 # a fellow engineer. Keyed by the same string used as the QFormLayout row label.
 PARAM_HELP = {
-    "Source image": "The photo you want to turn into a dream. This is the picture that gets reshaped.",
-    "Guide image": "An optional second picture. Instead of hallucinating generic shapes, the dream will "
-    "try to pull in textures and forms from this guide image instead.",
-    "Model": "Which pretrained AI \"eye\" looks at your image. Different models notice different kinds "
-    "of shapes and textures, so switching this changes the dream's style. If unsure, leave the default.",
-    "Layer": "How deep into the AI's \"vision\" the dream effect is applied. Earlier layers tend to "
-    "produce swirly textures and edges; deeper layers produce more recognizable shapes and objects. "
-    "Leave blank to use a sensible default for the chosen model.",
-    "Channel": "Narrows the effect to one specific pattern the AI knows, instead of all of them at once. "
-    "-1 means \"use everything\" (the usual choice). Only change this if you're experimenting.",
+    "Source image": "The photo you want to turn into a dream.",
+    
+    "Guide image": "An optional second picture. Instead of hallucinating generic shapes from within the model"
+    "the dream will try to pull in textures and forms from this guide image instead.",
+    
+    "Model": "Which pretrained AI model looks at your image. All models here are trained on a dataset of animals/dogs mainly "
+    "and so will dream as such. Other models can be found, trained to classify different objects. If unsure, leave it the default."
+    "The default is inception_v3, but you can go for a slightly smaller models (mobilenet_v2, mobilenet_v3_large), medium"
+    "sized (googlenet, resnet50), and much larger (so, more expensive) models (vgg16, vgg19) too",
+    
+    "Layer": "How deep into the AI's \"visual cortex\" the dream effect is applied. Earlier layers tend to "
+    "produce swirly textures and edges; deeper layers produce more recognizable shapes and objects.",
+    
+    "Channel": "Narrows the effect to one specific pattern the AI knows (say, a dog's face as opposed to a cat's)"
+    "instead of all of them at once. -1 means \"use everything\" (the usual choice). Only change this if you're experimenting.",
+    
     "Octaves": "How many times the image is processed at different zoom levels, from zoomed-out to "
-    "zoomed-in. More octaves add detail at multiple scales, but take longer to run.",
+    "zoomed-in. More octaves add detail at multiple scales, but takes longer to run.",
+    
     "Octave scale": "How much bigger each zoom level is than the last. Bigger numbers mean a bigger jump "
     "in scale between octaves, which can make the effect more dramatic but less smooth.",
+    
     "Iterations per octave": "How many times the dream effect is applied at each zoom level. More "
-    "iterations means a stronger, more intense effect -- but also more processing time.",
+    "iterations means a stronger, more intense effect, but also more processing time.",
+    
     "Step size": "How big a nudge is applied to the image on each iteration. Bigger steps make the "
-    "effect stronger and faster to appear, but can also make it look harsh or noisy.",
+    "effect stronger and faster to appear, but can also make it look harsh, saturated, and/or noisy.",
+    
     "Jitter": "Shifts the image by a few random pixels each iteration before processing. This avoids "
     "tile-like repeating patterns and makes the result look more natural.",
+    
     "Max input size": "The image is shrunk to at most this many pixels (on its longest side) before "
     "dreaming, then the result is produced at that size. Smaller values run faster; larger values keep "
-    "more detail but take longer and use more memory.",
+    "give higher resolution but take longer and use more memory,",
 }
 
 
@@ -242,7 +253,6 @@ class MainWindow(QMainWindow):
         left.addWidget(self.log_view)
 
         right = QVBoxLayout()
-        right.addWidget(self._build_logo_section())
         right.addWidget(self.preview_label)
 
         root = QHBoxLayout()
@@ -253,29 +263,34 @@ class MainWindow(QMainWindow):
         root.addWidget(left_widget, 1)
         root.addWidget(right_widget, 1)
 
+        outer = QVBoxLayout()
+        outer.addWidget(self._build_logo_banner())
+        outer.addLayout(root)
+
         central = QWidget()
-        central.setLayout(root)
+        central.setLayout(outer)
         self.setCentralWidget(central)
 
-    def _build_logo_section(self) -> QWidget:
-        """Standalone header section showing the project logo above the preview."""
+    def _build_logo_banner(self) -> QWidget:
+        """Full-width header banner showing the project logo/wordmark."""
         logo_label = QLabel()
         logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pixmap = QPixmap(resource_path(os.path.join("images", "logo.jpg")))
         if not pixmap.isNull():
             logo_label.setPixmap(
-                pixmap.scaledToHeight(96, Qt.TransformationMode.SmoothTransformation)
+                pixmap.scaledToHeight(120, Qt.TransformationMode.SmoothTransformation)
             )
         else:
             logo_label.setText("NeroDream")
 
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 8)
         layout.addWidget(logo_label)
 
-        section = QWidget()
-        section.setLayout(layout)
-        return section
+        banner = QWidget()
+        banner.setLayout(layout)
+        banner.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        return banner
 
     def _path_row(self, line_edit: QLineEdit, browse_slot) -> QWidget:
         row = QHBoxLayout()
