@@ -1,5 +1,13 @@
-torch>=2.0
-torchvision>=0.15
+# CPU-only torch/torchvision builds -- this project never uses a GPU
+# (nothing moves tensors to a CUDA device), and the default PyPI wheels
+# pull several GB of unused nvidia-* CUDA libraries alongside torch.
+# --extra-index-url alone doesn't reliably win over PyPI's default wheel
+# for a plain `torch>=2.0`, so the +cpu build tag is pinned explicitly.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.0+cpu
+torchvision==0.29.0+cpu
 numpy>=1.24
 pillow>=9.0
 pytest>=7.0
+pyqt6>=6.6
+pyinstaller>=6.0
