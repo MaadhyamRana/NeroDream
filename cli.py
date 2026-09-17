@@ -17,7 +17,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Simple DeepDream: layer/channel activation maximization.")
     parser.add_argument("--image", help="Path to input photo.")
     parser.add_argument("--output", default="dream.jpg", help="Where to save the result.")
-    parser.add_argument("--model", default="mobilenet_v2", choices=list(AVAILABLE_MODELS))
+    parser.add_argument("--model", default="inception_v3", choices=list(AVAILABLE_MODELS))
     parser.add_argument("--layer", default="", help="Layer to maximize. Defaults to a good known layer per model.")
     parser.add_argument("--channel", type=int, default=-1, help="Maximize one channel instead of the whole layer.")
     parser.add_argument("--guide", default=None, help="Path to a guide image. If given, pulls the source's activation toward the guide's instead of maximizing it (ignores --channel).")

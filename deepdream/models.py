@@ -71,7 +71,7 @@ AVAILABLE_MODELS = {
     ),
     "inception_v3": ModelEntry(
         lambda: tvm.inception_v3(weights=Inception_V3_Weights.DEFAULT),
-        "Mixed_6c",
+        "Mixed_6c.branch1x1",
         104,
         75,
         "The original DeepDream backbone. Classic swirly eyes/dog-face look.",

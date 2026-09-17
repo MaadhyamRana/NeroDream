@@ -65,9 +65,13 @@ def run_octaves(
     img = pil_resize(original, octave_sizes[0])
 
     for i, size in enumerate(octave_sizes):
+        print(f'\nOn Octave level {i}:')
         if i > 0:
             img = pil_resize(img, size) + compute_lost_detail(original, octave_sizes[i - 1], size)
         for _ in range(iterations_per_octave):
+            print('. ', end='')
             img = gradient_ascent_step(img, compute_grad_fn, step_size, jitter_px, rng)
-
+        
+        print()
+        
     return img
