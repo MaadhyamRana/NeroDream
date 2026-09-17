@@ -202,10 +202,9 @@ def make_guided_grad_fn(
     guide image's -- so the dream hallucinates shapes pulled from the guide
     instead of generic ImageNet classes.
 
-    The guide's activation is averaged over space into one target vector
-    per channel, so it stays comparable to the source's activation no
-    matter how the source's resolution (and so its activation's spatial
-    size) changes across octaves.
+    Each source spatial location is matched to whichever guide location's
+    feature vector it's most similar to (cosine similarity), and pulled
+    toward that vector.
     """
     named_modules = dict(model.named_modules())
     if layer_name not in named_modules:
@@ -220,11 +219,13 @@ def make_guided_grad_fn(
         activation["value"] = output
     target_module.register_forward_hook(hook)
 
-    # One-off forward pass on the guide image to get its (fixed) target activation.
+    # One-off forward pass on the guide image to get its (fixed) activation
+    # map, kept as one feature vector per spatial location (C, Hg*Wg)
     guide_tensor = torch.from_numpy(guide_image_hwc).permute(2, 0, 1).unsqueeze(0).float()
     with torch.no_grad():
         model((guide_tensor - mean) / std)
-    guide_target = activation["value"].mean(dim=(2, 3), keepdim=True)
+    guide_flat = activation["value"].flatten(2).squeeze(0)  # (C, Hg*Wg)
+    guide_flat_normed = guide_flat / (guide_flat.norm(dim=0, keepdim=True) + 1e-8)
 
     def compute_grad_fn(image_hwc: np.ndarray) -> np.ndarray:
         tensor = torch.from_numpy(image_hwc).permute(2, 0, 1).unsqueeze(0).float()
@@ -233,16 +234,33 @@ def make_guided_grad_fn(
         normalized = (tensor - mean) / std
         model(normalized)
         act = activation["value"]
+        _, c, h, w = act.shape
+        act_flat = act.flatten(2).squeeze(0)  # (C, Hs*Ws)
+
+        """
+        For each source location, find the guide location whose feature
+        vector it's most aligned with (cosine similarity, so a location's
+        activation magnitude doesn't by itself win the match), then build a
+        per-location target by gathering those matched guide vectors. This
+        lookup only decides *what to match*, not the gradient itself, so it
+        runs under no_grad
+        """
+        with torch.no_grad():
+            act_flat_normed = act_flat / (act_flat.norm(dim=0, keepdim=True) + 1e-8)
+            similarity = act_flat_normed.t() @ guide_flat_normed  # (Hs*Ws, Hg*Wg)
+            best_match = similarity.argmax(dim=1)  # (Hs*Ws,)
+        matched_target = guide_flat[:, best_match].view(c, h, w).unsqueeze(0)
 
         """
         core.py's gradient_ascent_step always *adds* step_size * grad, i.e.
         it only knows how to ascend. To pull the source's activation toward
-        the guide's (minimize distance) through that same ascent-only
-        interface, we ascend on the negated distance instead -- negating
-        the loss before backward() flips the returned gradient's sign, so
-        adding it is equivalent to descending the real (unnegated) distance.
+        its matched guide targets (minimize distance) through that same
+        ascent-only interface, we ascend on the negated distance instead --
+        negating the loss before backward() flips the returned gradient's
+        sign, so adding it is equivalent to descending the real (unnegated)
+        distance.
         """
-        loss = -((act - guide_target) ** 2).mean()
+        loss = -((act - matched_target) ** 2).mean()
         loss.backward()
         return tensor.grad.squeeze(0).permute(1, 2, 0).numpy()
 
