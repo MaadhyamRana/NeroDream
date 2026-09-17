@@ -55,13 +55,20 @@ AVAILABLE_MODELS = {
         32,
         "Similar size to v2, slightly different texture bias.",
     ),
-    "googlenet": ModelEntry(
-        lambda: tvm.googlenet(weights=GoogLeNet_Weights.DEFAULT),
-        "inception4c",
-        50,
+    "efficientnet_b0": ModelEntry(
+        lambda: tvm.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT),
+        "features.6",
+        20,
         64,
-        "Same lineage as the original DeepDream network, smaller than inception_v3.",
+        "Good quality-per-MB, less commonly used for DeepDream and more experimental.",
     ),
+    # "googlenet": ModelEntry(
+    #     lambda: tvm.googlenet(weights=GoogLeNet_Weights.DEFAULT),
+    #     "inception4c",
+    #     50,
+    #     64,
+    #     "Same lineage as the original DeepDream network, smaller than inception_v3.",
+    # ),
     "resnet50": ModelEntry(
         lambda: tvm.resnet50(weights=ResNet50_Weights.DEFAULT),
         "layer3",
@@ -76,20 +83,13 @@ AVAILABLE_MODELS = {
         75,
         "The original DeepDream backbone. Classic swirly eyes/dog-face look.",
     ),
-    "efficientnet_b0": ModelEntry(
-        lambda: tvm.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT),
-        "features.6",
-        20,
-        64,
-        "Good quality-per-MB, less commonly used for DeepDream and more experimental.",
-    ),
-    "vgg16": ModelEntry(
-        lambda: tvm.vgg16(weights=VGG16_Weights.DEFAULT),
-        "features.17",
-        528,
-        32,
-        "Clean sequential conv stack; standard neural-style-transfer's backbone",
-    ),
+    # "vgg16": ModelEntry(
+    #     lambda: tvm.vgg16(weights=VGG16_Weights.DEFAULT),
+    #     "features.17",
+    #     528,
+    #     32,
+    #     "Clean sequential conv stack; standard neural-style-transfer's backbone",
+    # ),
     "vgg19": ModelEntry(
         lambda: tvm.vgg19(weights=VGG19_Weights.DEFAULT),
         "features.21",

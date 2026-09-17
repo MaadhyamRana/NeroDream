@@ -54,12 +54,13 @@ PARAM_HELP = {
     "Source image": "The photo you want to turn into a dream.",
     
     "Guide image": "An optional second picture. Instead of hallucinating generic shapes from within the model"
-    "the dream will try to pull in textures and forms from this guide image instead.",
+    "the dream will try to pull in textures and forms from this guide image instead. Choose a small model"
+    "for this task (mobilenet / efficientnet / resnet)",
     
     "Model": "Which pretrained AI model looks at your image. All models here are trained on a dataset of animals/dogs mainly "
     "and so will dream as such. Other models can be found, trained to classify different objects. If unsure, leave it the default."
-    "The default is inception_v3, but you can go for a slightly smaller models (mobilenet_v2, mobilenet_v3_large), medium"
-    "sized (googlenet, resnet50), and much larger (so, more expensive) models (vgg16, vgg19) too",
+    "The default is inception_v3, but you can go for a slightly smaller models (mobilenet_v2, mobilenet_v3_large, efficientnet_b0),"
+    "the medium sized resnet50, and the slightly larger (so, more expensive) vgg19 too",
     
     "Layer": "How deep into the AI's \"visual cortex\" the dream effect is applied. Earlier layers tend to "
     "produce swirly textures and edges; deeper layers produce more recognizable shapes and objects.",
