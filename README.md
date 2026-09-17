@@ -4,6 +4,12 @@
 
 <h1 align="center"> NeroDream: DeepDream remix </h1>
 
+<p align="center">
+A GUI / CLI interface for making <a href="https://en.wikipedia.org/wiki/DeepDream">Google's DeepDream</a> style images from a source image.
+The gradient can be also 'guided' to pull the source's activation toward the guide's instead of maximizing it,
+giving a sort of style-transfer effect.
+</p>
+
 ## Installation
 Notes:
 - **Build on the OS you're targeting**:
