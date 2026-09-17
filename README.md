@@ -80,10 +80,5 @@ There's no hard requirement. Guidance:
 
 ## Planned changes
 
-Guided Dreaming with a second reference image - new function with the same
-signature -- e.g. `make_guided_grad_fn(model, layer, guide_image)` that
-minimizes distance to the guide's activation instead -- dropped in as a
-straight swap in `cli.py`. No change needed to `core.py` or `image_utils.py`.
-
 UI addition and simplification (native app / web app?)
 
